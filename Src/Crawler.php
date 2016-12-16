@@ -8,20 +8,35 @@ class Crawler {
 
     public $queue = [];
 
-    protected $domain = 'http://localhost';
+    protected $tld;
 
-    public function tld($url = 'http://localhost'){
+    /**
+     * Set domain to prevent spider from following external links
+     * @param  string $url [description]
+     * @return [type]      [description]
+     */
+    public function tld($tld = 'http://localhost'){
+        $this->tld = $tld;
+
+        return $this;
+    }
+
+    /**
+     * Adds first URL to queue
+     * @param  string $domain
+     * @return $this
+     */
+    public function startUrl($url = 'http://localhost') {
+        
         $this->queue[] = $url;
 
         return $this;
     }
 
-    public function domain($domain = 'http://localhost') {
-        $this->domain = $domain;
-
-        return $this;
-    }
-
+    /**
+     * Queues up URLs to test and adds them to the results file.
+     * @return void
+     */
     public function run(){
         $startTime = time();
         file_put_contents('urls.txt', date('l jS \of F Y h:i:s A') . "\r\n");
@@ -39,7 +54,7 @@ class Crawler {
             foreach ($links as $link) {
                 $href = $this->getFullUrl($link->getAttribute('href'));
 
-                if (!in_array($href, $this->visited) && strpos($href, $this->domain) !== false ) {
+                if (!in_array($href, $this->visited) && strpos($href, $this->tld) !== false ) {
                     $this->queue[] = $href;
                     $this->visited[] = $href;
                     file_put_contents('urls.txt', $href . "\r\n", FILE_APPEND);
@@ -53,11 +68,16 @@ class Crawler {
         echo "<div style='text-align:center;'><h1>Completed in...{$completedTime} seconds</h1></div>";
     }
 
+    /**
+     * Converts relative links to absolute links
+     * @param  String $href
+     * @return String
+     */
     protected function getFullUrl($href) {
          if (substr($href, 0, 7) == 'http://' || substr($href,0,8) == 'https://') {
             return $href;
         } else {
-            return $this->domain . $href;
+            return $this->tld . $href;
         }
     }
 }

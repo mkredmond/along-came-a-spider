@@ -6,4 +6,7 @@ use Src\Crawler;
 
 $crawler = new Crawler;
 
-$crawler->tld('http://localhost')->startUrl('http://localhost')->run();
+$crawler->setDelay(0)
+    ->tld('http://wwwtest.sjfc.edu')
+    ->startUrl('http://wwwtest.sjfc.edu')
+    ->run();
